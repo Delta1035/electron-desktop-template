@@ -1,0 +1,18 @@
+node_modules
+.pnpm-store
+dist
+out
+coverage
+test-results
+playwright-report
+dependency-audit.json
+# Written by electron-builder.config.mjs from app.config.json on every package build.
+apps/desktop/build/generated
+*.initialize.tmp
+.DS_Store
+.eslintcache
+*.log*
+.env
+.env.*
+!.env.example
+.claude/settings.local.json

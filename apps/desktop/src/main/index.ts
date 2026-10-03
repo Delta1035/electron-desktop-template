@@ -1,0 +1,95 @@
+import { app, BrowserWindow, Tray } from 'electron'
+import { electronApp, is, optimizer } from '@electron-toolkit/utils'
+import icon from '../../resources/icon.png?asset'
+import { createAppCore, type AppCore } from './core/app-core'
+import { appConfig } from './app-config'
+import { join } from 'path'
+import { registerIpcHandlers } from './ipc'
+import { registerUpdater } from './updater'
+import { createMainWindow } from './window'
+import { registerWindowControls } from './window-controls'
+import { createTray } from './tray'
+
+let mainWindow: BrowserWindow | null = null
+// Module-level reference keeps the tray icon from being garbage-collected.
+let tray: Tray | null = null
+let isQuitting = false
+let core: AppCore | null = null
+// From settings; read synchronously when the window closes.
+let closeAction: 'tray' | 'quit' = 'tray'
+let disposed = false
+
+// Upper bound for stopping managed processes on quit; a stuck process must not block exit.
+const disposeTimeoutMs = 10_000
+
+function showMainWindow(): void {
+  if (!mainWindow) {
+    mainWindow = createMainWindow(() => !isQuitting && closeAction === 'tray')
+    return
+  }
+  if (mainWindow.isMinimized()) mainWindow.restore()
+  mainWindow.show()
+  mainWindow.focus()
+}
+
+// `pnpm dev` would otherwise share userData (and the single-instance lock) with an installed
+// copy of this app, so the dev build quits immediately and Chromium fails to open its locked caches.
+// An explicit --user-data-dir (e.g. from E2E) still wins.
+if (is.dev && !app.commandLine.hasSwitch('user-data-dir')) {
+  app.setPath('userData', join(app.getPath('appData'), `${appConfig.appId}-dev`))
+}
+
+if (!is.dev && !app.commandLine.hasSwitch('user-data-dir')) {
+  app.setPath('userData', join(app.getPath('appData'), appConfig.appId))
+}
+
+// Only one instance of the app may own the managed processes at a time.
+if (!app.requestSingleInstanceLock()) {
+  app.quit()
+} else {
+  app.on('second-instance', showMainWindow)
+
+  app.whenReady().then(async () => {
+    electronApp.setAppUserModelId(appConfig.appId)
+    // Packaged builds use build/icon.icns; in dev the Dock would otherwise show Electron's icon.
+    if (is.dev) app.dock?.setIcon(icon)
+    app.on('browser-window-created', (_, window) => optimizer.watchWindowShortcuts(window))
+
+    core = createAppCore({
+      version: app.getVersion(),
+      productName: appConfig.productName,
+      platform: process.platform,
+      dataDir: app.getPath('userData')
+    })
+    registerIpcHandlers(core)
+    registerUpdater(() => core?.dispose() ?? Promise.resolve(), appConfig.repository)
+    registerWindowControls()
+    closeAction = (await core.getSettings()).closeAction
+    core.subscribe((event) => {
+      if (event.type === 'settings-updated') closeAction = event.settings.closeAction
+    })
+
+    tray = createTray({ show: showMainWindow, quit: () => app.quit() })
+    showMainWindow()
+  })
+
+  app.on('before-quit', (event) => {
+    isQuitting = true
+    if (!core || disposed) {
+      tray?.destroy()
+      return
+    }
+    // Stop managed process trees first, then quit for real.
+    event.preventDefault()
+    disposed = true
+    const timeout = new Promise((resolve) => setTimeout(resolve, disposeTimeoutMs))
+    void Promise.race([core.dispose(), timeout])
+      .catch((error: unknown) => console.error('[quit] failed to stop runs', error))
+      .finally(() => app.quit())
+  })
+
+  // With "keep in tray" the window only hides, so this fires only for "quit on close".
+  app.on('window-all-closed', () => {
+    if (closeAction === 'quit') app.quit()
+  })
+}

@@ -1,0 +1,125 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Superseded PR pushes are cancelled; every commit on main still gets a full run.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Advisory-only until upstream fixes exist; malformed responses and network failures still fail.
+  dependency-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Audit all dependencies and report findings
+        run: node scripts/dependency-audit.mjs
+      - name: Preserve audit response
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: dependency-audit
+          path: dependency-audit.json
+          if-no-files-found: ignore
+
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      # Electron and electron-builder (NSIS, AppImage tools) download 100 MB+ per run; both
+      # honour these variables, giving one cacheable location on every OS, outside the repo.
+      ELECTRON_CACHE: ${{ github.workspace }}/../.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/../.cache/electron-builder
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Cache Electron downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ github.workspace }}/../.cache/electron
+            ${{ github.workspace }}/../.cache/electron-builder
+          key: electron-${{ github.job }}-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: electron-${{ github.job }}-${{ runner.os }}-
+      - run: pnpm install --frozen-lockfile
+      # Includes the identity consistency check (pnpm identity).
+      - run: pnpm check
+      - name: E2E (Windows)
+        if: runner.os == 'Windows'
+        run: pnpm e2e
+      - name: E2E (Linux, virtual display)
+        if: runner.os == 'Linux'
+        run: xvfb-run --auto-servernum pnpm e2e
+      - name: Upload E2E traces
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-traces-${{ matrix.os }}
+          path: apps/desktop/test-results
+          if-no-files-found: ignore
+
+  # Builds the real installers so packaging problems (installer metadata, names derived from
+  # app.config.json, the update feed) show up before a release.
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: win
+          - os: ubuntu-latest
+            target: linux
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      ELECTRON_CACHE: ${{ github.workspace }}/../.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/../.cache/electron-builder
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Cache Electron downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ github.workspace }}/../.cache/electron
+            ${{ github.workspace }}/../.cache/electron-builder
+          key: electron-${{ github.job }}-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: electron-${{ github.job }}-${{ runner.os }}-
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @desktop/desktop build:${{ matrix.target }} --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+      - name: Verify installers match app.config.json
+        run: node scripts/verify-package.mjs
