@@ -44,7 +44,7 @@ export interface ShellApi {
   installUpdate(): Promise<void>
   /** Called on every status change; returns a function that unsubscribes. */
   onUpdateStatus(listener: (status: UpdateStatus) => void): () => void
-  /** The window draws its own title bar (ADR 0010); these back its buttons. */
+  /** The window draws its own title bar (ADR 0005); these back its buttons. */
   getWindowState(): Promise<WindowState>
   /** Called when the window is maximized, restored or enters / leaves full screen. */
   onWindowState(listener: (state: WindowState) => void): () => void

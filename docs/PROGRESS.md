@@ -12,4 +12,6 @@
 
 仓库门面与基础文件（2026-10-03，同步自 DevHub）：新增 `.gitattributes`（统一 LF，修复上述 CI 失败）、`.editorconfig`、`CLAUDE.md`；MIT `LICENSE`（版权人 Delta1035）；英文 README + `README.zh-CN.md`（徽章、截图、Star History）；`CONTRIBUTING.md`；Issue 表单与 PR 模板。截图 `docs/assets/` 用临时 Playwright 脚本截取，未保留脚本。
 
-待办：Linux 打包与 E2E、真实安装与跨版本更新实测；推送后确认 Windows CI 恢复。提交前钩子（husky + lint-staged）、提交信息校验与发布时自动生成变更日志尚未配置，与 DevHub 一并规划。
+工程化补齐（2026-10-03）：提交前 husky + lint-staged 格式化与 lint 暂存文件；Claude Code 钩子（编辑后格式化、结束前跑 typecheck + test）；`docs/decisions/` 新增 8 篇 ADR（改编自 DevHub，代码注释中的 ADR 编号已同步为新编号）。GitHub 仓库已标记为模板仓库，补充描述与话题。
+
+待办：Linux 打包与 E2E、真实安装与跨版本更新实测；推送后确认 Windows CI 恢复。提交信息校验与发布时自动生成变更日志尚未配置，与 DevHub 一并规划。

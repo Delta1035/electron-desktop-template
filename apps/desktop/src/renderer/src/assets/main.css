@@ -129,7 +129,7 @@
   }
 }
 
-/* The title bar moves the window (ADR 0010); anything clickable inside it opts out. */
+/* The title bar moves the window (ADR 0005); anything clickable inside it opts out. */
 .app-drag {
   -webkit-app-region: drag;
   user-select: none;

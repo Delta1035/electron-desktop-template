@@ -8,7 +8,7 @@ const firstCheckDelayMs = 15_000
 const checkIntervalMs = 6 * 60 * 60 * 1000
 
 /**
- * Self-update from GitHub Releases (ADR 0009). Never downloads or installs on its own: the
+ * Self-update from GitHub Releases (ADR 0004). Never downloads or installs on its own: the
  * user sees "new version" and chooses to download, then to restart.
  */
 export function registerUpdater(cleanup: () => Promise<void>, repository: string | null): void {

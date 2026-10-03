@@ -13,7 +13,7 @@ interface TitleBarProps {
 }
 
 /**
- * Replaces the system title bar (ADR 0010): drags the window, and on Windows / Linux carries
+ * Replaces the system title bar (ADR 0005): drags the window, and on Windows / Linux carries
  * the minimize / maximize / close buttons. macOS keeps its own traffic lights on the left.
  */
 export function TitleBar({ showSettings, onToggleSettings }: TitleBarProps): React.JSX.Element {

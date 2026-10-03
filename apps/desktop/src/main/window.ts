@@ -14,7 +14,7 @@ export function createMainWindow(shouldHideOnClose: () => boolean): BrowserWindo
     minHeight: 480,
     show: false,
     autoHideMenuBar: true,
-    // The renderer draws the title bar (ADR 0010). macOS keeps its traffic lights, inset
+    // The renderer draws the title bar (ADR 0005). macOS keeps its traffic lights, inset
     // into that bar and vertically centred in its 40px height.
     ...(isMac
       ? { titleBarStyle: 'hiddenInset' as const, trafficLightPosition: { x: 14, y: 13 } }

@@ -2,7 +2,7 @@ import { BrowserWindow, ipcMain } from 'electron'
 import { shellChannel, type WindowState } from '@desktop/shared'
 import { toIpcResult } from './ipc'
 
-/** Handlers behind the renderer's own title bar buttons (ADR 0010); each acts on the caller's window. */
+/** Handlers behind the renderer's own title bar buttons (ADR 0005); each acts on the caller's window. */
 export function registerWindowControls(): void {
   const handle = (channel: string, run: (window: BrowserWindow) => unknown): void => {
     ipcMain.handle(channel, (event) =>
