@@ -17,7 +17,15 @@
     "initialize": "node scripts/initialize.mjs",
     "identity": "node scripts/check-identity.mjs",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm identity",
-    "release": "node scripts/check-identity.mjs --release && pnpm --dir apps/desktop version --message \"chore(release): v%s\""
+    "release": "node scripts/check-identity.mjs --release && pnpm --dir apps/desktop version --message \"chore(release): v%s\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,mjs,cjs,json,css,md,yaml,yml}": "prettier --write"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^3.0.1",
@@ -26,6 +34,8 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
     "prettier": "^3.9.9",
     "typescript": "^6.0.3"
   }

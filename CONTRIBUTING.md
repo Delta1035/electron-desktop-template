@@ -21,6 +21,8 @@ pnpm check    # 格式 + lint + 类型 + 单测 + 标识检查
 pnpm e2e      # 构建并用 Playwright 驱动真实应用
 ```
 
+安装依赖时会启用 git 钩子：提交前自动对暂存的文件运行 Prettier 与 ESLint（husky + lint-staged）。
+
 在 VS Code 集成终端中运行 `pnpm dev` / `pnpm e2e` 前需清除 `ELECTRON_RUN_AS_NODE`，例如 `env -u ELECTRON_RUN_AS_NODE pnpm dev`。
 
 ## 目录结构
