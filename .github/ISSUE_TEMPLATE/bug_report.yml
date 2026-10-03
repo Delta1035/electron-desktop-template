@@ -1,0 +1,68 @@
+name: Bug 报告 / Bug report
+description: 出现了错误或不符合预期的行为
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: 提交前请先搜索已有 Issue，并看一眼 docs/PROGRESS.md 中的已知问题与待办。
+  - type: input
+    id: version
+    attributes:
+      label: 版本或提交
+      description: 应用标题栏显示的版本号，或模板的提交 SHA
+      placeholder: v0.1.0 / f4893c6
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: 系统
+      options:
+        - Windows 11
+        - Windows 10
+        - Ubuntu / Linux（X11）
+        - Ubuntu / Linux（Wayland）
+        - macOS
+        - 其他
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: 出现在哪个环节
+      options:
+        - 初始化（pnpm initialize）
+        - 开发运行（pnpm dev）
+        - 检查或测试（pnpm check / pnpm e2e）
+        - 打包（build:win / build:linux）
+        - 安装或自动更新
+        - 应用运行时
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 发生了什么
+      description: 实际看到的现象；有截图更好
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. …
+        2. …
+        3. 看到 …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望的行为
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相关输出
+      description: 命令输出、Electron 日志或 app.config.json（可隐去敏感信息）
+      render: text

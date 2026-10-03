@@ -6,6 +6,7 @@
   "description": "Reusable Electron desktop starter",
   "homepage": "https://example.com",
   "author": "Template Author",
+  "license": "MIT",
   "desktopName": "desktop-starter.desktop",
   "main": "./out/main/index.js",
   "scripts": {

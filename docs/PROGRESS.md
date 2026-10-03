@@ -8,4 +8,8 @@
 
 验证（Windows）：pnpm check 通过（脚本 31、desktop 45、shared 2 个测试）；默认配置及两组产品配置（中文名并配置仓库、ASCII 名称且无仓库）均通过 check 与 E2E 3/3，Windows 安装包/免安装包名称、可执行文件、更新源（含无仓库时不生成）与产物校验一致，打包版能启动且标题正确。
 
-待办：Linux 打包与 E2E、远端 CI、真实安装与跨版本更新实测；LICENSE 待确定。
+远端 CI（首次推送 `f4893c6`）：Ubuntu check、两平台打包与依赖审计通过；Windows check 失败，因缺少 `.gitattributes`，Windows 检出为 CRLF，Prettier 报 96 个文件格式问题。
+
+仓库门面与基础文件（2026-10-03，同步自 DevHub）：新增 `.gitattributes`（统一 LF，修复上述 CI 失败）、`.editorconfig`、`CLAUDE.md`；MIT `LICENSE`（版权人 Delta1035）；英文 README + `README.zh-CN.md`（徽章、截图、Star History）；`CONTRIBUTING.md`；Issue 表单与 PR 模板。截图 `docs/assets/` 用临时 Playwright 脚本截取，未保留脚本。
+
+待办：Linux 打包与 E2E、真实安装与跨版本更新实测；推送后确认 Windows CI 恢复。提交前钩子（husky + lint-staged）、提交信息校验与发布时自动生成变更日志尚未配置，与 DevHub 一并规划。
