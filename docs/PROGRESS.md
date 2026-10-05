@@ -16,4 +16,6 @@
 
 远端 CI（`9863ccb`）：两平台 check（含 E2E）、两平台打包与依赖审计全部通过，Windows check 已恢复。
 
-待办：真实安装与跨版本更新实测。提交信息校验与发布时自动生成变更日志尚未配置，与 DevHub 一并规划。
+提交信息校验与 CHANGELOG（2026-10-05，同步自 DevHub 99ce072，ADR 0009）：husky `commit-msg` 钩子与 CI `commit-messages` 任务校验 Conventional Commits；`pnpm release` 把上个 tag 以来的 feat / fix / perf 写入 `CHANGELOG.md`，release 工作流以该段作为 Release 正文。模板仓库本身不发布，Release 正文的实际效果在 DevHub 下次发布时验证。
+
+待办：真实安装与跨版本更新实测。

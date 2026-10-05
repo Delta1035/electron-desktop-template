@@ -12,6 +12,6 @@ app-core 组装 notes 与 settings。输入在 core 使用 zod 校验，预期�
 
 产品标识只在 app.config.json 中维护，规则集中在 scripts/app-config.mjs（运行时 main/app-config.ts 用 zod 保持相同规则）。scripts/initialize.mjs 只结构化写入 app.config.json 与两个 package.json；main 与 renderer 构建时导入配置，Vite 插件写入窗口标题，electron-builder.config.mjs 经 scripts/builder-config.mjs 生成打包配置并写入 build/generated/installer.nsh 定义安装子目录。packaged name 用 extraMetadata 设为 projectName，避免各应用共享更新缓存；无 repository 时 publish 显式为 null。scripts/check-identity.mjs 检查一致性与来源残留，发布模式另外要求非默认标识与匹配的仓库；scripts/verify-package.mjs 校验真实产物。
 
-重要技术决策记录在 docs/decisions/（ADR）。提交前 husky + lint-staged 对暂存文件运行 Prettier 与 ESLint。
+重要技术决策记录在 docs/decisions/（ADR）。提交前 husky + lint-staged 对暂存文件运行 Prettier 与 ESLint。提交信息由 husky `commit-msg` 钩子与 CI `commit-messages` 任务校验（scripts/commit-msg.mjs）；`pnpm release` 经 apps/desktop 的 `version` 生命周期调用 scripts/changelog.mjs 生成 CHANGELOG.md 段落，release 工作流以其作为 Release 正文（ADR 0009）。
 
 check 包含格式、lint、类型、单测与标识检查。E2E 驱动构建后的真实应用，验证便签、主题、窗口、对话框、外链和数据隔离；失败保存 trace 和 Electron 输出。

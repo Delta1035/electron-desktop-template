@@ -76,7 +76,8 @@ node scripts/verify-package.mjs              # 校验产物名称与更新源
 ```
 
 - `pnpm identity`（已包含在 `pnpm check` 中）检查各文件与 `app.config.json` 一致，并扫描来源应用残留的标识。
-- `pnpm release patch|minor|major` 会先执行发布模式检查（不允许模板默认值，必须配置 repository），再修改版本、提交并打 tag；执行 `git push --follow-tags` 后，`release.yml` 会核对 tag、标识和当前仓库，在两个平台检查、打包后创建草稿 Release。
+- `pnpm release patch|minor|major` 会先执行发布模式检查（不允许模板默认值，必须配置 repository），再修改版本、把上个 tag 以来的 feat / fix / perf 提交写入 `CHANGELOG.md`、提交并打 tag；执行 `git push --follow-tags` 后，`release.yml` 会核对 tag、标识、当前仓库和变更日志段落，在两个平台检查、打包后创建草稿 Release，正文即该段落。
+- 提交信息须符合 [Conventional Commits](https://www.conventionalcommits.org/)，由 `commit-msg` 钩子与 CI 校验（`scripts/commit-msg.mjs`）。
 - 未配置 repository 时显式关闭发布，不会从 git remote 推断更新源。安装包不签名。
 
 ## 内容

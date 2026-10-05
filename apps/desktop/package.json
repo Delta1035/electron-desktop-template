@@ -22,7 +22,8 @@
     "build:unpack": "pnpm build && electron-builder --dir --config electron-builder.config.mjs",
     "build:win": "pnpm build && electron-builder --win --config electron-builder.config.mjs",
     "build:linux": "pnpm build && electron-builder --linux --config electron-builder.config.mjs",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "version": "node ../../scripts/changelog.mjs release"
   },
   "dependencies": {
     "@electron-toolkit/utils": "^4.0.0",

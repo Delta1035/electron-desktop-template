@@ -53,7 +53,7 @@ docs/              架构、进度与示例删除说明
 
 1. 从 `main` 拉分支，一个 PR 只做一件事。
 2. `pnpm check` 必须通过；改动 UI、IPC/preload 或生命周期时还要跑 `pnpm e2e`。CI 会在 Windows 与 Ubuntu 上重复这两项，并打包校验真实产物。
-3. 提交信息使用 [Conventional Commits](https://www.conventionalcommits.org/)（`feat:` / `fix:` / `refactor:` / `docs:` / `test:` / `chore:`），正文说明「为什么」。
+3. 提交信息使用 [Conventional Commits](https://www.conventionalcommits.org/)（`feat:` / `fix:` / `refactor:` / `docs:` / `test:` / `chore:`，另有 `perf` / `build` / `ci` / `style` / `revert`），正文说明「为什么」。本地 `commit-msg` 钩子与 CI 都会校验（`scripts/commit-msg.mjs`，首行不超过 100 字符）。`feat` / `fix` / `perf` 的主题会原样进入 CHANGELOG，请写成用户能看懂的话。
 4. 改了结构或约定时同步更新 `docs/ARCHITECTURE.md`。
 
 ## 许可

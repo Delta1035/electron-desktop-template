@@ -76,7 +76,8 @@ node scripts/verify-package.mjs              # verify artifact names and the upd
 ```
 
 - `pnpm identity` (part of `pnpm check`) verifies that every file agrees with `app.config.json` and scans for identifiers left over from the source app.
-- `pnpm release patch|minor|major` first runs the release-mode check (no template defaults, repository required), then bumps the version, commits and tags. After `git push --follow-tags`, `release.yml` verifies the tag, identity and repository, checks and packages on both platforms, and creates a draft Release.
+- `pnpm release patch|minor|major` first runs the release-mode check (no template defaults, repository required), then bumps the version, adds the feat / fix / perf commits since the previous tag to `CHANGELOG.md`, commits and tags. After `git push --follow-tags`, `release.yml` verifies the tag, identity, repository and changelog section, checks and packages on both platforms, and creates a draft Release whose notes are that section.
+- Commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/); a `commit-msg` hook and CI check them (`scripts/commit-msg.mjs`).
 - Without a repository, releasing is explicitly off; the update feed is never inferred from the git remote. Installers are not code-signed.
 
 ## What's included
